@@ -1,0 +1,20 @@
+---
+---
+
+@import 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+h2 {
+  color: var(--toc-highlight);
+  text-decoration: underline;
+}
+
+h4 {
+  font-size: 1rem;
+  font-weight: 600;
+}
