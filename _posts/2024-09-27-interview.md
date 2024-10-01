@@ -1,4 +1,4 @@
-# JavaScript
+## JavaScript
 
 ### ES6新特性
 
@@ -129,26 +129,39 @@ console.log(loggedSayHello('Alice')); // 输出调用和返回日志
 
 ---
 
-# TypeScript
+## TypeScript
 
-**1. 泛型（Generics）**
+### 泛型（Generics）
 
 - 泛型定义：泛型是一种在编译时创建可重用组件的方法，它允许你定义一个组件，该组件可以工作于多种类型上。在TypeScript中，泛型通过<T>（其中T是一个占位符，表示任何类型）来定义。
 - 提高代码可重用性：通过使用泛型，你可以编写灵活、可重用的函数、接口和类，这些组件可以接受不同类型的参数，而无需为每种可能的类型编写单独的版本。
 - 增强类型安全：泛型在编译时提供了类型检查，确保在函数、接口或类中使用的类型符合预期。这有助于减少运行时错误，提高代码的健壮性。
 
-**2. 类型断言（Type Assertions）和类型守卫（Type Guards）的区别和用法**
+### 类型断言（Type Assertions）和类型守卫（Type Guards）的区别和用法
 - 类型断言：类型断言是一种告诉编译器“我知道我在做什么，请相信我”的方式。它允许你将一个类型的值转换为另一个类型，而无需进行任何实际的转换或检查。语法为value as Type或<Type>value。
 - 类型守卫：类型守卫是TypeScript中的一个表达式，用于测试一个值是否属于某种类型，并且如果测试通过，TypeScript编译器会将该值的类型视为更具体的类型。常见的类型守卫包括typeof、instanceof以及自定义类型保护函数。
 - 区别：类型断言是开发者对类型的显式指定，不进行任何检查；而类型守卫是TypeScript编译器根据条件表达式自动推断类型，需要进行类型检查。
 
-**3. 交叉类型（Intersection Types）和联合类型（Union Types）有什么区别？**
-- 联合类型：联合类型表示一个值可以是几种类型之一。使用|分隔每个类型。例如，let value: string | number;表示value可以是string或number。
-- 交叉类型：交叉类型将多个类型合并为一个类型，新类型将具有所有类型的特性。使用&将多个类型合并。例如，interface A { a: string; } interface B { b: number; } let c: A & B;表示c同时拥有A和B接口的所有属性。
+### 交叉类型（Intersection Types）和联合类型（Union Types）有什么区别？
+- 联合类型：联合类型表示一个值可以是几种类型之一。使用管道分隔每个类型。以下例子表示value可以是string或number：
+```ts
+let value: string | number;
+```
+- 交叉类型：交叉类型将多个类型合并为一个类型，新类型将具有所有类型的特性。使用&将多个类型合并。以下例子c同时拥有A和B接口的所有属性。
+```ts
+interface A { a: string; } 
+interface B { b: number; } 
+let c: A & B;
+```
 - 区别：联合类型表示“或”的关系，交叉类型表示“且”的关系。
 
-**4. TypeScript中的索引签名（Index Signatures）和映射类型（Mapped Types）是什么？它们如何应用于类型编程？**
-- 索引签名：索引签名允许你定义一个对象，其属性名可以是字符串或数字（但在实际使用中，通常只使用字符串）。这可以用于模拟字典或记录类型。例如，interface Dictionary { [key: string]: any; }。
+### 索引签名（Index Signatures）和映射类型（Mapped Types）是什么？它们如何应用于类型编程？
+- 索引签名：索引签名允许你定义一个对象，其属性名可以是字符串或数字（但在实际使用中，通常只使用字符串）。这可以用于模拟字典或记录类型。例如，
+```ts
+interface Dictionary {
+  [key: string]: any; 
+}
+```
 - 映射类型：映射类型是在旧有类型的基础上创建新类型的一种方式。它们通过遍历旧类型的所有键，并基于每个键应用某种转换来工作。映射类型通常用于工具类型（如Partial、Readonly等）的实现。
 - 应用：索引签名和映射类型在类型编程中非常有用，它们允许你以声明性的方式定义复杂的类型结构，并减少重复代码。例如，你可以使用映射类型来创建一个新类型，该类型具有与旧类型相同的键，但所有属性都变为可选的（使用Partial类型）。
 
@@ -156,9 +169,103 @@ console.log(loggedSayHello('Alice')); // 输出调用和返回日志
 
 ---
 
-# Angular
+## Angular
 
-### Angular中的变更检测（Change Detection）
+### String Interpolation vs Property Binding
+
+区别:
+
+- 不论btnDisabled的值是true还是false，Button A 一直是disable状态，因为string interpolation会将值转换为字符串。
+```html
+<button disabled="{% raw %}{{btnDisabled}}{% endraw %}">Button A</button>
+<button [disabled]="btnDisabled">Button B</button>
+```
+
+- 如果text的值包含html标签，那么property binding有html注入风险，html标签将会被执行。而string interpolation则会将text原样输出，即将text内容看做普通的字符串。
+
+```html
+<div [innerText]="text"></div>
+<div>{% raw %}{{text}}{% endraw %}</div>
+```
+
+
+### View Encapsulation
+
+```ts
+@Component({
+  selector: 'app-bottom',
+  encapsulation: ViewEncapsulation.Emulated
+})
+```
+
+组件中css样式封装有三种方式：
+
+- Emulated, 默认值，Angular会自动为组件生成唯一的属性选择器，比如<div _ngcontent-aht-c12 class="container"></div>，这样就可以做到每个组件的css样式不会互相影响
+- None, 当前组件的样式就会变为global
+- ShadowDom，不会受到global样式的影响，但是会受到外层encapsulation: ViewEncapsulation.None的设置影响
+
+### Observable vs Promise
+
+- Promise在创建后是立即执行的，比如在promise中调用API，那创建promise的时候，这个API会被立即调用。 Observable是懒加载的，创建的时候，并不会调用API，只有真正被subscribe后，才会触发调用
+
+- Promise只能resolve一个值，而observable可以emit多个值。比如处理用户搜索框输入，使用 fromEvent 将输入框的键盘事件转化为 Observable，使用 debounceTime(300) 来防止用户快速输入时频繁触发请求，使用 switchMap 来处理输入变化。当用户输入变化时，如果前一个请求尚未完成，switchMap 会取消前一个请求，确保只处理最新的输入值。
+
+- Promise本身只允许通过 then 方法获取数据一次。每次 then 调用都会返回一个新的 Promise，因此你不能直接在多个地方同时“获取”同一个 Promise 的结果。Observable 可以实现多个订阅者共享同一个数据流，并且可以在多个地方使用相同的结果。
+
+- Promise不能取消，Observable可以被取消。 比如当前页面正在加载大量数据，但是用户点了跳转，那么observable可以取消避免内存泄漏，而promise不可以取消
+
+### Observable vs Subject
+1. 在Observable中，我们需要一个单独的观察者接口(observer interface)去给被观察者(observable)喂数据，比如:
+```ts
+const myObservable = new Observable(observer => {
+	observer.next('send Observable message')
+})
+myObservable.subscribe(observableData => console.log(observableData))
+```
+在Subject中，他可以是观察者也可以是被观察者，换句话说，Subject可以既是消费者(consumers)，又是提供者(providers)，但是Observable只能是提供者。比如：
+```ts
+const mySubject = new Subject();
+mySubject.next('send subject message');
+mySubject.subscribe(subjectData => console.log(subjectData))
+```
+
+2. Observable是cold，它只在有subscriber的情况下，才会发送数据，所以上面例子中的data可以被打印出来。
+Subject是hot，它会发送数据即使没有subscriber，所以上面例子中的subjectData不能被打印出来，应该改为下面先订阅，后发送的顺序：
+```ts
+const mySubject = new Subject();
+mySubject.subscribe(subjectData => console.log(subjectData))
+mySubject.next('send subject message');
+```
+
+
+3. Observable是单播(unicast)，意味着每一个订阅它的观察者(subscribed observer)会执行独立的Observable，比如下面两个data打印出来的值不一样
+```ts
+const myObservable = new Observable(observer => {
+	observer.next(Math.random())
+})
+myObservable.subscribe(data => console.log(data))
+myObservable.subscribe(data => console.log(data))
+```
+Subject是多播(multicasting)，意味着发送的数据会在所有订阅者中共享，既下面两个data打印出来的值一样
+```ts
+const mySubject = new Subject();
+mySubject.subscribe(data => console.log(data))
+mySubject.subscribe(data => console.log(data))
+mySubject.next('send subject message');
+```
+
+
+### Subject vs ReplaySubject vs BehaviorSubject
+1. 行为
+- BehaviorSubject: 只保存最后一个发出的值。新的订阅者总是能够获得当前的最新值（如果有的话），而不管何时订阅。
+- ReplaySubject: 可以缓存多个值（通过参数设置缓存的数量）。新的订阅者可以获得在其订阅之前的所有值，直到缓存的值数量达到设定的上限。
+
+2. 使用场景
+- BehaviorSubject: 用于需要跟踪最新状态的场景，例如用户登录状态或全局应用设置(主题)。这种情况下只关心最新的状态值。
+- ReplaySubject: 用于需要回放历史数据的场景，比如记录日志、时间序列数据，或者需要缓存一段时间内的数据。适合场景是希望新订阅者能够获得过去的几个事件。
+
+
+### 变更检测（Change Detection）
 
 ##### 一、基本概念
 变化检测简单来说就是Angular用来检测组件中数据（模型）与视图之间绑定的值是否发生了改变，当检测到变化时，Angular会同步更新视图以反映这些变化。
@@ -195,10 +302,30 @@ Angular提供了两种主要的变更检测策略：
 总的来说，Angular的变更检测机制是一个高度优化的机制，可以确保只有真正需要更新的视图才会被更新，从而提高应用的性能和响应速度。通过合理使用变更检测策略和优化技巧，开发者可以进一步提升Angular应用的性能。
 
 
+### 性能优化
+在一个大型 Angular 项目中，我曾遇到过性能下降的挑战，尤其是在处理复杂的组件树和大量数据渲染时。以下是一些具体的挑战及解决方案：
+
+1. 变更检测性能问题：
+- 挑战：由于 Angular 的默认变更检测策略是每次事件触发时都会检查所有组件，导致某些组件频繁更新，影响性能。
+- 解决方案：我将一些不频繁更新的组件的变更检测策略更改为 ChangeDetectionStrategy.OnPush。这样，组件只有在输入属性变化或事件发生时才会被检测，从而减少不必要的渲染。
+
+2. 过多的 DOM 操作：
+- 挑战：在一个组件中使用了大量的 *ngFor 来渲染数据列表，导致页面渲染变慢。
+- 解决方案：我引入了 trackBy 函数，以便在 Angular 渲染列表时能够追踪项的身份，从而优化 DOM 操作。这显著减少了重新渲染的次数。
+
+3. 内存泄漏：
+- 挑战：由于在多个组件中存在未取消的订阅，导致内存使用不断增加。
+- 解决方案：我使用了 takeUntil 操作符来管理订阅，在组件的 ngOnDestroy 生命周期钩子中自动取消订阅，确保不再使用的资源被释放。
+
+4. 异步数据处理：
+- 挑战：在处理大量异步数据时，页面响应变得缓慢。
+- 解决方案：我使用了 async 管道来自动管理 Observable 的订阅和数据更新，从而简化了代码并提高了性能。
+
+
 ---
 
 
-# Webpack
+## Webpack
 
 ### Webpack的概念及作用
 Webpack是一个静态模块打包器，它将项目中的资源（如JavaScript、CSS、图片等）视为模块，通过依赖关系进行静态分析，然后将这些模块按照指定的规则打包生成对应的静态资源。Webpack支持多种文件类型，包括但不限于JavaScript、CSS、图片等，并通过加载器（Loader）和插件（Plugin）进行转换和优化。Webpack的核心理念是将项目中的所有资源视为模块，通过模块化管理和打包，提高开发效率和项目性能。
@@ -295,7 +422,7 @@ Webpack会根据静态分析的结果构建一个依赖图（Dependency Graph）
 ---
 
 
-# 性能优化
+## 性能优化
 
 ### 前端性能优化
 
