@@ -165,7 +165,175 @@ interface Dictionary {
 - 映射类型：映射类型是在旧有类型的基础上创建新类型的一种方式。它们通过遍历旧类型的所有键，并基于每个键应用某种转换来工作。映射类型通常用于工具类型（如Partial、Readonly等）的实现。
 - 应用：索引签名和映射类型在类型编程中非常有用，它们允许你以声明性的方式定义复杂的类型结构，并减少重复代码。例如，你可以使用映射类型来创建一个新类型，该类型具有与旧类型相同的键，但所有属性都变为可选的（使用Partial类型）。
 
+### 装饰器 Decorator
 
+需要在tsconfig.json中启用下面属性：
+```json
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "experimentalDecorators": true
+  }
+}
+```
+
+#### 类装饰器 (ClassDecorator)
+
+```ts
+// 装饰器工厂方法
+const MusicDecoratorFactory = (type: string): ClassDecorator => {
+    switch (type) {
+        case 'Tank':
+            return (target: Function) => {
+                target.prototype.playMusic = (): void => {
+                    console.log('Tank: play music...')
+                }
+            }
+        default:
+            return (target: Function) => {
+                target.prototype.playMusic = (): void => {
+                    console.log('Player: play music...')
+                }
+            }
+    }
+
+}
+
+// 装饰器方法
+const MusicDecorator: ClassDecorator = (target: Function) => {
+    target.prototype.playMusic = (): void => {
+        console.log('Play music...')
+    }
+}
+
+@MusicDecoratorFactory('Tank')
+class Tank {
+    playMusic() { }
+}
+
+new Tank().playMusic();
+
+@MusicDecoratorFactory('Player')
+class Player { }
+
+const p = new Player();
+
+(p as any).playMusic();
+
+```
+
+输出结果: 
+```bash
+[LOG]: "Tank: play music..." 
+[LOG]: "Player: play music..." 
+```
+
+#### 方法装饰器 (MethodDecorator)
+
+```ts
+// 方法装饰器
+const ShowModalDecorator: MethodDecorator = (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+    const method = descriptor.value;
+    descriptor.value = () => {
+        // 修改为延迟2s再展示modal框
+        setTimeout(() => {
+            method();
+        }, 2000)
+    }
+}
+
+// 工厂方法，自定义延迟显示时间
+const ShowModalDecoratorFactory = (seconds: number): MethodDecorator => {
+    return (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+        const method = descriptor.value;
+        descriptor.value = () => {
+            setTimeout(() => {
+                method();
+            }, seconds)
+        }
+    }
+}
+
+class Modal {
+    @ShowModalDecorator
+    public show() {
+        console.log('Delay 2 seconds to show modal')
+    }
+
+    @ShowModalDecoratorFactory(5000)
+    public customizedShow() {
+        console.log('Delay 5 seconds to show modal');
+    }
+}
+
+new Modal().show();
+new Modal().customizedShow();
+```
+
+输出结果: 
+```bash
+[LOG]: "Delay 2 seconds to show modal" 
+[LOG]: "Delay 5 seconds to show modal" 
+```
+
+#### 属性装饰器 (PropertyDecorator)
+
+```ts
+const LowerCaseDecorator: PropertyDecorator = (target: Object, propertyKey: string | symbol) => {
+    let value: string;
+    Object.defineProperty(target, propertyKey, {
+        get: () => {
+            return value.toLowerCase();
+        },
+        set: (v) => {
+            value = v;
+        }
+    })
+}
+
+class Test {
+    @LowerCaseDecorator
+    public title: string | undefined;
+}
+
+const obj = new Test();
+obj.title = 'TYPESCRIPT';
+
+console.log(obj.title)
+```
+
+输出结果: 
+```bash
+[LOG]: "typescript" 
+```
+
+#### 参数装饰器 (ParameterDecorator)
+
+需要先运行 
+```bash
+npm i reflect-metadata
+```
+
+```ts
+import 'reflect-metadata'
+
+const RequiredDecorator: ParameterDecorator = (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
+    Reflect.defineMetadata('required', 'id', target, propertyKey);
+}
+
+const ValidateDecorator: MethodDecorator = (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
+    console.log(Reflect.getMetadata('required', target, propertyKey))
+}
+
+class User {
+    @ValidateDecorator
+    public find(@RequiredDecorator id: number) {
+        console.log(id);
+    }
+}
+
+new User().find(309);
+```
 
 ---
 
