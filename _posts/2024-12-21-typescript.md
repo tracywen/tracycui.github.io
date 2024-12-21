@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-categories: [TS]
+categories: [TypeScript]
 mermaid: true
 ---
 
@@ -8,7 +8,33 @@ mermaid: true
 
 ### 1. any
 
-### 2. unknow
+### 2. unknown
+* unknown可以理解为一个类型安全的any，适用于：不确定数据的具体类型
+```typescript
+let a: unknown
+
+// 以下对a的赋值，均正常
+a = 100;
+a = false
+
+let x: string;
+x = a // 警告：不能将类型"unknown"分配给类型"string"
+```
+* unknown强制在使用之前进行类型检查，从而提供更强的类型安全性
+```typescript
+let a: unknown;
+let x: string;
+
+a = 'hello';
+
+// 第一种方式，加类型判断
+if (typeof a === 'string') {
+    x = a;
+}
+
+// 第二种方式，加断言
+x = a as string;
+```
 
 ### 3. never
 
